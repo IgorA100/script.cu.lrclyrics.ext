@@ -1,3 +1,6 @@
+v4.3.2
+- fix minilyric scraper
+
 v4.3.1
 - fix baidu lrc scraper
 - fix alsong lrc scraper
