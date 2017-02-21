@@ -1,3 +1,6 @@
+v5.3.7(1)
+- add support Enhanced LRC format https://en.wikipedia.org/wiki/LRC_%28file_format%29#Enhanced_format
+
 v5.3.7
 - add support for synced lyrics in txxx tag
 
