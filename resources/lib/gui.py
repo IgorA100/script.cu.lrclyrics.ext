@@ -398,6 +398,10 @@ class GUI(xbmcgui.WindowXMLDialog):
         self.setup_gui()
         self.process_lyrics()
         self.gui_loop()
+#IgorA100-start
+        self.textEXT = self.getControl(2110) #Пока не используем
+        self.labelEXT = self.getControl(2111) #Пока не используем
+#IgorA100-end
 
     def process_lyrics(self):
         global lyrics
@@ -450,6 +454,17 @@ class GUI(xbmcgui.WindowXMLDialog):
         self.scroll_line = int(self.get_page_lines() / 2)
         self.showgui = True
         self.selecteditem = 0
+#IgorA100-start
+        self.strTxt = [] #Строки текста
+        self.startSlovo = 0 #Текущая строка вывода текста
+        self.endSlovo = 0 #Текущая строка вывода текста
+        self.startStroka = 0 #Текущая строка вывода текста
+        self.endStroka = 0 #Текущая строка вывода текста
+        self.ExtendLRC = 0 #Найден расширенный формат
+        self.AllStr = 0 #Всего строк
+        self.gameOver = 0 #Играется последняя строка
+        self.musicInfo = '' # Исполнитель, альбом и т.п.
+#IgorA100-end
 
     def get_page_lines(self):
         self.text.setVisible(False)
@@ -471,6 +486,24 @@ class GUI(xbmcgui.WindowXMLDialog):
                 cur_time = xbmc.Player().getTime()
             nums = self.text.size()
             pos = self.text.getSelectedPosition()
+#IgorA100-start
+            #log ('!!!self.text!!!' + self.text )
+            log ('!!!REFRESH!!!' )
+            if (self.ExtendLRC == 1):
+                self.getControl( 110 ).setVisible( False ) #130217
+                self.getControl( 2110 ).setVisible( True ) #130217
+                self.getControl( 2111 ).setVisible( True ) #130217
+            else:    
+                self.getControl( 110 ).setVisible( True ) #130217
+                self.getControl( 2110 ).setVisible( False ) #130217
+                self.getControl( 2111 ).setVisible( False ) #130217
+            dtsa = ""
+            nnn = 0
+            nStr = 0 #Номер текущей строки
+            sStr = 0 #START номер строки
+            eStr = 0 #END номер строки
+            DLta = int(ADDON.getSetting('set_line_text')) #Кол-во отображаемых строк перед текущей и после текущей
+#IgorA100-end
             if (cur_time < (self.pOverlay[pos][0] - self.syncadjust)):
                 while (pos > 0 and (self.pOverlay[pos - 1][0] - self.syncadjust) > cur_time):
                     pos = pos -1
@@ -481,14 +514,90 @@ class GUI(xbmcgui.WindowXMLDialog):
                     self.text.selectItem(nums - 1)
                 else:
                     self.text.selectItem(pos + self.scroll_line)
+#IgorA100-start
+            log ('!!!pos2!!!' + str(pos) )
+            if (self.ExtendLRC == 1):
+                timeCurentPos = self.pOverlay[pos][0] #Время текущей позиции
+                timePrevPos = self.pOverlay[pos-1][0] #Время предыдущей позиции. Если ее не анализировать, то при разнице во времени между соседники словами .01 может неправильно переходить по строкам
+                log ('!!!timeCurentPos!!!' + str(timeCurentPos) )
+                log ('!!!timePrevPos!!!' + str(timePrevPos) )
+                log ('!!!count timeCurentPos!!!' + str(self.strTxt.count( timeCurentPos )) )
+                log ('!!!count timePrevPos!!!' + str(self.strTxt.count( timePrevPos )) )
+#                if (self.strTxt.count( timeCurentPos ) > 0): #Значит с новой строки начинать, и нужно пересчитать начальную строку м конечную
+                if (self.strTxt.count( timeCurentPos ) > 0 or self.strTxt.count( timePrevPos ) > 0 ): #Значит с новой строки начинать, и нужно пересчитать начальную строку м конечную
+                    if (self.strTxt.count( timePrevPos ) > 0):
+                        nStr = self.strTxt.index( timePrevPos ) #Номер текущей строки
+                    else:
+                        nStr = self.strTxt.index( timeCurentPos ) #Номер текущей строки
+                    log ('!!!nStr!!!' + str(nStr) )
+                    
+                    sStr = nStr - DLta
+                    if ( sStr < 0):
+                        sStr = 0
+                    eStr = nStr + DLta + 1
+                    self.startStroka = sStr
+                
+                    if ( eStr >= self.AllStr-1 ):
+                        self.gameOver = 1
+                        eStr = self.AllStr-1
+                    self.endStroka = eStr
+                    
+                tTmp = 0
+                numSearch = 0
+                while tTmp < nums :
+                    if ( self.pOverlay[tTmp][0] == self.strTxt[self.startStroka] ):
+                        self.startSlovo = tTmp
+                        numSearch += 1
+                    if ( self.pOverlay[tTmp][0] == self.strTxt[self.endStroka] ):
+                        self.endSlovo = tTmp
+                        numSearch += 1
+                    if ( numSearch > 1):
+                        break
+                    tTmp += 1
+                if ( self.gameOver == 1): 
+                    self.endSlovo = len(self.pOverlay)
+                nnn = self.startSlovo
+                eNDS = self.endSlovo-1
+                while nnn <= eNDS :
+                    if (self.strTxt.count( self.pOverlay[nnn][0] ) > 0): #Значит с новой строки начинать
+                        dtsa = dtsa + "[CR]"
+                    if (nnn <= pos):
+                       dtsa = dtsa + "[COLOR=green]" + self.pOverlay[nnn][1] + "[/COLOR]"
+                    else:
+                        dtsa = dtsa + self.pOverlay[nnn][1]
+                    
+                    nnn += 1 
+                self.getControl( 2110 ).setText( dtsa )
+#IgorA100-end
             self.text.selectItem(pos)
-            self.setFocus(self.text)
+#IgorA100-start
+            if (self.ExtendLRC != 1):
+            #self.setFocus(self.text)
+                self.setFocus(self.text)
+#IgorA100-end
+
             if (self.allowtimer and cur_time < (self.pOverlay[nums - 1][0] - self.syncadjust)):
                 waittime = (self.pOverlay[pos + 1][0] - self.syncadjust) - cur_time
+#IgorA100-start
+                if (self.ExtendLRC == 1):
+                    if ( waittime > 0.6 and waittime < 4.2 ) :
+                        self.getControl( 2111 ).setLabel( str(int(round(waittime)))) 
+                    elif waittime > 5 :
+                        self.getControl( 2111 ).setLabel( str("Wait"))  
+                    else:
+                        self.getControl( 2111 ).setLabel( "" )  
+                    if waittime > 1 :
+                        waittime = 0.9
+                    self.getControl( 2112 ).setLabel( self.musicInfo )  
+#IgorA100-end
                 self.timer = Timer(waittime, self.refresh)
                 self.refreshing = True
                 self.timer.start()
             else:
+#IgorA100-start
+                self.getControl( 2111 ).setLabel( "" )
+                #self.getControl( 2110 ).setText( "" )
+#IgorA100-end
                 self.refreshing = False
             self.lock.release()
         except:
@@ -507,7 +616,12 @@ class GUI(xbmcgui.WindowXMLDialog):
         self.text.setVisible(controlId == 110)
         self.list.setVisible(controlId == 120)
         xbmc.sleep(5)
-        self.setFocus(self.getControl(controlId))
+#IgorA100-start
+        if (self.ExtendLRC != 1):
+        #self.setFocus(self.getControl(controlId))
+            self.setFocus(self.getControl(controlId))
+#IgorA100-end
+
 
     def show_lyrics(self, lyrics):
         WIN.setProperty('culrc.lyrics', lyrics.lyrics)
@@ -541,7 +655,12 @@ class GUI(xbmcgui.WindowXMLDialog):
                     listitem.setProperty('part%i' % (count + 1), item)
                 self.text.addItem(listitem)
         self.text.selectItem(0)
-        self.show_control(110)
+#IgorA100-start
+        if (self.ExtendLRC != 1):
+        #self.show_control(110)
+            self.show_control(110)
+#IgorA100-end
+
         if lyrics.lrc:
             if (self.allowtimer and self.text.size() > 1):
                 self.refresh()
@@ -567,6 +686,23 @@ class GUI(xbmcgui.WindowXMLDialog):
         self.pOverlay = []
         tag1 = re.compile('\[(\d+):(\d\d)[\.:](\d\d)\]')
         tag2 = re.compile('\[(\d+):(\d\d)([\.:]\d+|)\]')
+#IgorA100-start
+        #self.getControl( 2110 ).setVisible( True )
+        #self.getControl( 2111 ).setVisible( True )
+        tagI1 = re.compile('<(\d+):(\d\d)[\.:](\d\d)>') #[xx:yy.zz]
+        tagI2 = re.compile('<(\d+):(\d\d)([\.:]\d+|)>') #[xx:yy]
+        tagI3 = re.compile('<(\d+):(\d\d)([\.:]\d+|)>') #[xx:yy.z] #Пока не используем
+        self.strTxt = []
+        self.gameOver = 0
+        self.ExtendLRC = 0
+        tiEXTfound = re.search('\[ti:(.*?)\]', lyrics, flags=re.DOTALL) #Название компоазиции
+        arEXTfound = re.search('\[ar:(.*?)\]', lyrics, flags=re.DOTALL) #Название исполнителя
+        if tiEXTfound:
+            tiEXT = tiEXTfound.group(1)
+        if arEXTfound:
+            arEXT = arEXTfound.group(1)
+        self.musicInfo = arEXT + '> "' + tiEXT + '"'
+#IgorA100-end
         lyrics = lyrics.replace('\r\n' , '\n')
         sep = '\n'
         for x in lyrics.split(sep):
@@ -581,16 +717,92 @@ class GUI(xbmcgui.WindowXMLDialog):
                     y = 6 + len(match1.group(1)) + len(match1.group(3))
                     x = x[y:]
                     match1 = tag1.match(x)
+#IgorA100-start
+                    FirstSlovo = x[:x.find('<')]
+                    xLRC = x.find('<')
+                    xx = x[xLRC:]
+                    if xLRC > -1 :
+                        x = xx
+                        self.ExtendLRC = 1
+                        self.getControl( 110 ).setVisible( False ) #130217
+                        self.getControl( 2110 ).setVisible( True ) #130217
+                        self.getControl( 2111 ).setVisible( True ) #130217
+                    else:
+                        self.getControl( 110 ).setVisible( True ) #130217
+                        self.getControl( 2110 ).setVisible( False ) #130217
+                        self.getControl( 2111 ).setVisible( False ) #130217
+#IgorA100-end
                 for time in times:
-                    self.pOverlay.append((time, x))
+#IgorA100-start
+                    if (self.ExtendLRC == 1):
+                        self.pOverlay.append( (time, FirstSlovo) )
+                        self.strTxt.append( time )
+                        while ( x.find('<') > -1 ):
+                            matchI2 = tagI2.match( x )
+                            curentTime = float(matchI2.group(1)) * 60 + float(matchI2.group(2)) + (float(matchI2.group(3))/1) + self.offset - offset
+#                            yy = 6 + len(matchI2.group(1)) + len(matchI2.group(3))
+                            yy = 5 + len(matchI2.group(1)) + len(matchI2.group(3))
+                            x = x[yy:]
+
+                            curentSlovo = x[:x.find('<')]
+                            x = x[x.find('<'):]
+                            if (curentSlovo != ''): #В конце строки стоит время окончания, его мы не обрабатываем.
+                                self.pOverlay.append( (curentTime , curentSlovo ) )
+                    else:
+                    #self.pOverlay.append((time, x))
+                        self.pOverlay.append((time, x))
+#IgorA100-end
             elif (match2): # [xx:yy]
                 while (match2):
-                    times.append(float(match2.group(1)) * 60 + float(match2.group(2)) + self.offset - offset)
+#IgorA100-start
+                    #times.append(float(match2.group(1)) * 60 + float(match2.group(2)) + self.offset - offset)
+                    match2_first = match2 #Иначе дальше он испортится
+#IgorA100-end
                     y = 5 + len(match2.group(1)) + len(match2.group(3))
                     x = x[y:]
                     match2 = tag2.match(x)
+#IgorA100-start
+                    FirstSlovo = x[:x.find('<')]
+                    #log('!!!!!!!FirstSlovo!!!!!!!!!!:>'+str(FirstSlovo)+'<:!!!!!!!!!!!!!!!')
+                    xLRC = x.find('<')
+                    xx = x[xLRC:]
+                    if xLRC > -1 :
+                        x = xx
+                        self.ExtendLRC = 1
+                        times.append(float(match2_first.group(1)) * 60 + float(match2_first.group(2)) + (float(match2_first.group(3))) + self.offset - offset)
+                        self.getControl( 110 ).setVisible( False ) #130217
+                        self.getControl( 2110 ).setVisible( True ) #130217
+                        self.getControl( 2111 ).setVisible( True ) #130217
+                    else:
+                        times.append(float(match2_first.group(1)) * 60 + float(match2_first.group(2)) + self.offset - offset)
+                        self.getControl( 110 ).setVisible( True ) #130217
+                        self.getControl( 2110 ).setVisible( False ) #130217
+                        self.getControl( 2111 ).setVisible( False ) #130217
+#IgorA100-end
                 for time in times:
-                    self.pOverlay.append((time, x))
+#IgorA100-start
+                    if (self.ExtendLRC == 1):
+                        log('!!!!!!!time!!!!!!!!!!:>'+str(time) + '><' + FirstSlovo + '<:!!!!!!!!!!!!!!!')
+                        self.pOverlay.append( (time, FirstSlovo) )
+                        self.strTxt.append( time )
+                        while ( x.find('<') > -1 ):
+                            matchI2 = tagI2.match( x )
+                            curentTime = float(matchI2.group(1)) * 60 + float(matchI2.group(2)) + (float(matchI2.group(3))/1) + self.offset - offset
+                            yy = 5 + len(matchI2.group(1)) + len(matchI2.group(3))
+                            x = x[yy:]
+
+                            curentSlovo = x[:x.find('<')] #Ищет с начала строки до знака '<'
+                            x = x[x.find('<'):]
+                            if (curentSlovo != ''): #В конце строки стоит время окончания, его мы не обрабатываем.
+                                self.pOverlay.append( (curentTime , curentSlovo ) )
+                    else:
+                    #self.pOverlay.append((time, x))
+                        self.pOverlay.append((time, x))
+                #self.refresh()
+        nnn = 0
+        self.AllStr = len(self.strTxt)
+#IgorA100-end
+
         self.pOverlay.sort(cmp=lambda x,y: cmp(x[0], y[0]))
         if ADDON.getSetting('strip') == 'true':
             poplist = []
@@ -699,12 +911,20 @@ class GUI(xbmcgui.WindowXMLDialog):
         actionId = action.getId()
         if (actionId in CANCEL_DIALOG):
             if xbmc.getCondVisibility('Control.IsVisible(120)'):
-                self.show_control(110)
+#IgorA100-start
+                if (self.ExtendLRC != 1):
+                #self.show_control(110)
+                    self.show_control(110)
+#IgorA100-end
             else:
                 # dialog cancelled, close the gui
                 self.exit_gui('quit')
         elif (actionId == 101) or (actionId == 117): # ACTION_MOUSE_RIGHT_CLICK / ACTION_CONTEXT_MENU
-            self.context_menu()
+#IgorA100-start
+            if (self.ExtendLRC != 1):
+            #self.context_menu()
+                self.context_menu()
+#IgorA100-end
         elif (actionId in ACTION_OSD):
             xbmc.executebuiltin('ActivateWindow(10120)')
         elif (actionId in ACTION_CODEC):
