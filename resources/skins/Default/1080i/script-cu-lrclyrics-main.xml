@@ -92,6 +92,49 @@
 			<onclick>Action(close)</onclick>
 		</control>
 		<!-- ** Required ** Do not change <id> or <type> (Lyrics, will autoscroll if lrc based lyrics are shown) -->
+		<!-- IgorA100-start -->
+		<control type="textbox" id="2110">
+			<description>Main text</description>
+			<posx>5</posx>
+			<posy>60</posy>
+			<width>1300</width>
+			<height>700</height>
+			<visible>true</visible>
+			<colordiffuse>FFFFFFFF</colordiffuse>
+			<font>font60</font>
+			<textcolor>FFFFFFFF</textcolor>
+			<pulseonselect></pulseonselect>
+			<pagecontrol>13</pagecontrol>
+			<scrolltime>200</scrolltime>
+			<label></label>
+			<align>center</align>
+			<aligny>center</aligny>
+		</control>
+		<control type="label" id="2111">
+			<description>Time pause</description>
+			<left>30</left>
+			<top>95</top>
+			<width>180</width>
+			<height>20</height>
+			<font>font52_title</font>
+			<aligny>center</aligny>
+			<align>left</align>
+			<textcolor>FFFF6600</textcolor>
+			<visible>true</visible>
+		</control>
+		<control type="label" id="2112">
+			<description>Music info</description>
+			<left>220</left>
+			<top>95</top>
+			<width>1100</width>
+			<height>20</height>
+			<font>font14</font>
+			<aligny>center</aligny>
+			<align>left</align>
+			<textcolor>FF12B2E7</textcolor>
+			<visible>true</visible>
+		</control>
+		<!-- IgorA100-end -->
 		<control type="list" id="110">
 			<left>10</left>
 			<top>110</top>
