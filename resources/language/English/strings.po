@@ -217,3 +217,8 @@ msgstr ""
 msgctxt "#32199"
 msgid "CU LRC Lyrics"
 msgstr ""
+
+#IgorA100
+msgctxt "#132152"
+msgid "The number of lines before and after the current"
+msgstr ""
