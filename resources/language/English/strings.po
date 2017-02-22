@@ -218,7 +218,12 @@ msgctxt "#32199"
 msgid "CU LRC Lyrics"
 msgstr ""
 
-#IgorA100
+#IgorA100-start
 msgctxt "#132152"
 msgid "The number of lines before and after the current"
 msgstr ""
+
+msgctxt "#232149"
+msgid "Enhanced LRC setting"
+msgstr ""
+#IgorA100-end

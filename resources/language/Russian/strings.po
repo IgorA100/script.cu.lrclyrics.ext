@@ -36,7 +36,12 @@ msgctxt "#32159"
 msgid "Enable debug logging"
 msgstr "Включить журнал отладки"
 
-#IgorA100
+#IgorA100-start
 msgctxt "#132152"
 msgid "The number of lines before and after the current"
 msgstr "Кол-во строк до и после текущей"
+
+msgctxt "#232149"
+msgid "Enhanced LRC setting"
+msgstr "Настройки расширенного формата"
+#IgorA100-end
