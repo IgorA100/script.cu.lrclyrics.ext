@@ -387,7 +387,7 @@ class GUI(xbmcgui.WindowXMLDialog):
         self.delete = kwargs['delete']
         self.function = kwargs['function']
         self.Monitor = MyMonitor(function = None)
-       
+        
     def onInit(self):
         self.matchlist = ['@', 'www\.(.*?)\.(.*?)', 'QQ(.*?)[1-9]', 'artist ?: ?.', 'album ?: ?.', 'title ?: ?.', 'song ?: ?.', 'by ?: ?.']
         self.text = self.getControl(110)
@@ -464,6 +464,7 @@ class GUI(xbmcgui.WindowXMLDialog):
         self.AllStr = 0 #Всего строк
         self.gameOver = 0 #Играется последняя строка
         self.musicInfo = '' # Исполнитель, альбом и т.п.
+        self.prefLog = '[script.cu.lrclyrics.ext]' #
 #IgorA100-end
 
     def get_page_lines(self):
@@ -487,8 +488,6 @@ class GUI(xbmcgui.WindowXMLDialog):
             nums = self.text.size()
             pos = self.text.getSelectedPosition()
 #IgorA100-start
-            #log ('!!!self.text!!!' + self.text )
-            log ('!!!REFRESH!!!' )
             if (self.ExtendLRC == 1):
                 self.getControl( 110 ).setVisible( False ) #130217
                 self.getControl( 2110 ).setVisible( True ) #130217
@@ -515,21 +514,19 @@ class GUI(xbmcgui.WindowXMLDialog):
                 else:
                     self.text.selectItem(pos + self.scroll_line)
 #IgorA100-start
-            log ('!!!pos2!!!' + str(pos) )
             if (self.ExtendLRC == 1):
                 timeCurentPos = self.pOverlay[pos][0] #Время текущей позиции
                 timePrevPos = self.pOverlay[pos-1][0] #Время предыдущей позиции. Если ее не анализировать, то при разнице во времени между соседники словами .01 может неправильно переходить по строкам
-                log ('!!!timeCurentPos!!!' + str(timeCurentPos) )
-                log ('!!!timePrevPos!!!' + str(timePrevPos) )
-                log ('!!!count timeCurentPos!!!' + str(self.strTxt.count( timeCurentPos )) )
-                log ('!!!count timePrevPos!!!' + str(self.strTxt.count( timePrevPos )) )
-#                if (self.strTxt.count( timeCurentPos ) > 0): #Значит с новой строки начинать, и нужно пересчитать начальную строку м конечную
+                log (self.prefLog + ' timeCurentPos=>' + str(timeCurentPos) )
+                log (self.prefLog + ' timePrevPos=>' + str(timePrevPos) )
+                log (self.prefLog + ' timeCurentPos count=>' + str(self.strTxt.count( timeCurentPos )) )
+                log (self.prefLog + ' timePrevPos count=>' + str(self.strTxt.count( timePrevPos )) )
                 if (self.strTxt.count( timeCurentPos ) > 0 or self.strTxt.count( timePrevPos ) > 0 ): #Значит с новой строки начинать, и нужно пересчитать начальную строку м конечную
                     if (self.strTxt.count( timePrevPos ) > 0):
                         nStr = self.strTxt.index( timePrevPos ) #Номер текущей строки
                     else:
                         nStr = self.strTxt.index( timeCurentPos ) #Номер текущей строки
-                    log ('!!!nStr!!!' + str(nStr) )
+                    log (self.prefLog + ' nStr=>' + str(nStr) )
                     
                     sStr = nStr - DLta
                     if ( sStr < 0):
@@ -763,7 +760,7 @@ class GUI(xbmcgui.WindowXMLDialog):
                     match2 = tag2.match(x)
 #IgorA100-start
                     FirstSlovo = x[:x.find('<')]
-                    #log('!!!!!!!FirstSlovo!!!!!!!!!!:>'+str(FirstSlovo)+'<:!!!!!!!!!!!!!!!')
+                    log(self.prefLog + ' FirstSlovo=>'+str(FirstSlovo))
                     xLRC = x.find('<')
                     xx = x[xLRC:]
                     if xLRC > -1 :
@@ -782,7 +779,7 @@ class GUI(xbmcgui.WindowXMLDialog):
                 for time in times:
 #IgorA100-start
                     if (self.ExtendLRC == 1):
-                        log('!!!!!!!time!!!!!!!!!!:>'+str(time) + '><' + FirstSlovo + '<:!!!!!!!!!!!!!!!')
+                        log(self.prefLog + 'time=>'+str(time) + '><' + FirstSlovo)
                         self.pOverlay.append( (time, FirstSlovo) )
                         self.strTxt.append( time )
                         while ( x.find('<') > -1 ):
