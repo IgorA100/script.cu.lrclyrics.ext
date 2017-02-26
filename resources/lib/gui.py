@@ -36,6 +36,9 @@ class MAIN():
         self.Monitor = MyMonitor(function=self.update_settings)
         self.customtimer = False
         self.starttime = 0
+#IgorA100-start ???????
+        self.ExtendLRC = 0
+#IgorA100-end
 
     def cleanup_main(self):
         # Clean up the monitor and Player classes on exit
@@ -399,8 +402,14 @@ class GUI(xbmcgui.WindowXMLDialog):
         self.process_lyrics()
         self.gui_loop()
 #IgorA100-start
+        self.ExtendLRC = 0
         self.textEXT = self.getControl(2110) #Пока не используем
         self.labelEXT = self.getControl(2111) #Пока не используем
+    
+    def log_ext(self, level, msg):
+        if (self.logLevel >= level):
+            log(self.prefLog + str(level) + " " + str(msg))
+    
 #IgorA100-end
 
     def process_lyrics(self):
@@ -464,7 +473,8 @@ class GUI(xbmcgui.WindowXMLDialog):
         self.AllStr = 0 #Всего строк
         self.gameOver = 0 #Играется последняя строка
         self.musicInfo = '' # Исполнитель, альбом и т.п.
-        self.prefLog = '[script.cu.lrclyrics.ext]' #
+        self.prefLog = '[LEVEL_DEBUG_EXT]=>' #
+        self.logLevel = int(ADDON.getSetting('level_debug_ext')) #Уровень детализирования логов
 #IgorA100-end
 
     def get_page_lines(self):
@@ -488,6 +498,7 @@ class GUI(xbmcgui.WindowXMLDialog):
             nums = self.text.size()
             pos = self.text.getSelectedPosition()
 #IgorA100-start
+            self.log_ext(4, "{REFRESH} self.ExtendLRC=>" + str(self.ExtendLRC))
             if (self.ExtendLRC == 1):
                 self.getControl( 110 ).setVisible( False ) #130217
                 self.getControl( 2110 ).setVisible( True ) #130217
@@ -517,16 +528,16 @@ class GUI(xbmcgui.WindowXMLDialog):
             if (self.ExtendLRC == 1):
                 timeCurentPos = self.pOverlay[pos][0] #Время текущей позиции
                 timePrevPos = self.pOverlay[pos-1][0] #Время предыдущей позиции. Если ее не анализировать, то при разнице во времени между соседники словами .01 может неправильно переходить по строкам
-                log (self.prefLog + ' timeCurentPos=>' + str(timeCurentPos) )
-                log (self.prefLog + ' timePrevPos=>' + str(timePrevPos) )
-                log (self.prefLog + ' timeCurentPos count=>' + str(self.strTxt.count( timeCurentPos )) )
-                log (self.prefLog + ' timePrevPos count=>' + str(self.strTxt.count( timePrevPos )) )
+                self.log_ext(4, ' timeCurentPos=>' + str(timeCurentPos) )
+                self.log_ext(4, ' timePrevPos=>' + str(timePrevPos) )
+                self.log_ext(4, ' timeCurentPos count=>' + str(self.strTxt.count( timeCurentPos )) )
+                self.log_ext(4, ' timePrevPos count=>' + str(self.strTxt.count( timePrevPos )) )
                 if (self.strTxt.count( timeCurentPos ) > 0 or self.strTxt.count( timePrevPos ) > 0 ): #Значит с новой строки начинать, и нужно пересчитать начальную строку м конечную
                     if (self.strTxt.count( timePrevPos ) > 0):
                         nStr = self.strTxt.index( timePrevPos ) #Номер текущей строки
                     else:
                         nStr = self.strTxt.index( timeCurentPos ) #Номер текущей строки
-                    log (self.prefLog + ' nStr=>' + str(nStr) )
+                    self.log_ext(4, ' nStr=>' + str(nStr) )
                     
                     sStr = nStr - DLta
                     if ( sStr < 0):
@@ -728,6 +739,7 @@ class GUI(xbmcgui.WindowXMLDialog):
                         self.getControl( 110 ).setVisible( True ) #130217
                         self.getControl( 2110 ).setVisible( False ) #130217
                         self.getControl( 2111 ).setVisible( False ) #130217
+                    self.log_ext(1, "{parser_lyrics match1} self.ExtendLRC=>" + str(self.ExtendLRC))
 #IgorA100-end
                 for time in times:
 #IgorA100-start
@@ -760,7 +772,7 @@ class GUI(xbmcgui.WindowXMLDialog):
                     match2 = tag2.match(x)
 #IgorA100-start
                     FirstSlovo = x[:x.find('<')]
-                    log(self.prefLog + ' FirstSlovo=>'+str(FirstSlovo))
+                    self.log_ext(4, ' FirstSlovo=>'+str(FirstSlovo))
                     xLRC = x.find('<')
                     xx = x[xLRC:]
                     if xLRC > -1 :
@@ -775,11 +787,12 @@ class GUI(xbmcgui.WindowXMLDialog):
                         self.getControl( 110 ).setVisible( True ) #130217
                         self.getControl( 2110 ).setVisible( False ) #130217
                         self.getControl( 2111 ).setVisible( False ) #130217
+                    self.log_ext(1, "{parser_lyrics match2} self.ExtendLRC=>" + str(self.ExtendLRC))
 #IgorA100-end
                 for time in times:
 #IgorA100-start
                     if (self.ExtendLRC == 1):
-                        log(self.prefLog + 'time=>'+str(time) + '><' + FirstSlovo)
+                        self.log_ext(4, 'time=>'+str(time) + '><' + FirstSlovo)
                         self.pOverlay.append( (time, FirstSlovo) )
                         self.strTxt.append( time )
                         while ( x.find('<') > -1 ):

@@ -48,6 +48,7 @@
 		<!-- IgorA100-start --> 
 	<category label="232149">
 		<setting id="set_line_text" type="slider" label="132152" default="3" range="1,1,4" option="int"/>
+		<setting id="level_debug_ext" type="slider" label="132153" default="1" range="1,1,4" option="int"/>
 	</category>
 		<!-- IgorA100-end --> 
 </settings>

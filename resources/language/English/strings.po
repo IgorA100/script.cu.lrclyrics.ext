@@ -223,6 +223,10 @@ msgctxt "#132152"
 msgid "The number of lines before and after the current"
 msgstr ""
 
+msgctxt "#132153"
+msgid "Level debug"
+msgstr ""
+
 msgctxt "#232149"
 msgid "Enhanced LRC setting"
 msgstr ""
