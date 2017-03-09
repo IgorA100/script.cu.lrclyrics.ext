@@ -528,16 +528,16 @@ class GUI(xbmcgui.WindowXMLDialog):
             if (self.ExtendLRC == 1):
                 timeCurentPos = self.pOverlay[pos][0] #Время текущей позиции
                 timePrevPos = self.pOverlay[pos-1][0] #Время предыдущей позиции. Если ее не анализировать, то при разнице во времени между соседники словами .01 может неправильно переходить по строкам
-                self.log_ext(4, ' timeCurentPos=>' + str(timeCurentPos) )
-                self.log_ext(4, ' timePrevPos=>' + str(timePrevPos) )
-                self.log_ext(4, ' timeCurentPos count=>' + str(self.strTxt.count( timeCurentPos )) )
-                self.log_ext(4, ' timePrevPos count=>' + str(self.strTxt.count( timePrevPos )) )
+                #Если только начинается песня, то "timePrevPos" будет содержать время ПОСЛЕДНЕЙ позиции в тексте!
+                self.log_ext(4, '{REFRESH} cur_time=>' + str(cur_time) )
+                self.log_ext(4, '{REFRESH} timeCurentPos=>' + str(timeCurentPos) + ' timePrevPos=>' + str(timePrevPos) )
+                self.log_ext(4, '{REFRESH} timeCurentPos count=>' + str(self.strTxt.count( timeCurentPos )) + ' timePrevPos count=>' + str(self.strTxt.count( timePrevPos )) )
                 if (self.strTxt.count( timeCurentPos ) > 0 or self.strTxt.count( timePrevPos ) > 0 ): #Значит с новой строки начинать, и нужно пересчитать начальную строку м конечную
                     if (self.strTxt.count( timePrevPos ) > 0):
                         nStr = self.strTxt.index( timePrevPos ) #Номер текущей строки
                     else:
                         nStr = self.strTxt.index( timeCurentPos ) #Номер текущей строки
-                    self.log_ext(4, ' nStr=>' + str(nStr) )
+                    self.log_ext(4, '{REFRESH} nStr=>' + str(nStr) )
                     
                     sStr = nStr - DLta
                     if ( sStr < 0):
@@ -569,7 +569,7 @@ class GUI(xbmcgui.WindowXMLDialog):
                 while nnn <= eNDS :
                     if (self.strTxt.count( self.pOverlay[nnn][0] ) > 0): #Значит с новой строки начинать
                         dtsa = dtsa + "[CR]"
-                    if (nnn <= pos):
+                    if ( (nnn <= pos) and (timePrevPos <= timeCurentPos ) ): #Если время не настало, не красим первый элемент
                        dtsa = dtsa + "[COLOR=green]" + self.pOverlay[nnn][1] + "[/COLOR]"
                     else:
                         dtsa = dtsa + self.pOverlay[nnn][1]
